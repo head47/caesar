@@ -73,7 +73,6 @@ class myplugin_t(idaapi.plugin_t):
         print(funcG.edges)
         dividedG = HCS(funcG)
         clusters = [list(c) for c in nx.connected_components(dividedG)]
-        print('clusters:',clusters)
         # singleton adoption
         if SINGLETON_ADOPTION:
             for singleton in clusters:
@@ -93,6 +92,14 @@ class myplugin_t(idaapi.plugin_t):
                         dividedG.add_edge(singleton[0],clusters[nearest][0])
                     else:
                         print('could not adopt',singleton[0])
+            clusters = [list(c) for c in nx.connected_components(dividedG)]
+        print('clusters:',clusters)
+        for i in range(0,len(clusters)):
+            if len(clusters[i]) == 1:
+                continue
+            for funcName in clusters[i]:
+                funcAddr = idaapi.get_name_ea(idaapi.BADADDR,funcName)
+                idaapi.set_name(funcAddr,f'L{i}_{funcName}')
 
         subax1 = plt.subplot(121)
         nx.draw(funcG, with_labels=True)
