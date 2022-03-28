@@ -1,0 +1,7 @@
+*.exe
+*.a
+*.o
+*.id?
+*.nam
+*.til
+Ponce.cfg
