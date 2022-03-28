@@ -59,6 +59,8 @@ class myplugin_t(idaapi.plugin_t):
 
         funcG = nx.Graph()
         funcG.add_edges_from(connections)
+        print(funcG.nodes)
+        print(funcG.edges)
         dividedG = HCS(funcG)
 
         subax1 = plt.subplot(121)
@@ -66,8 +68,6 @@ class myplugin_t(idaapi.plugin_t):
         subax2 = plt.subplot(122)
         nx.draw(dividedG, with_labels=True)
         plt.show()
-        print(funcG.nodes)
-        print(funcG.edges)
 
     def term(self):
         pass
