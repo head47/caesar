@@ -48,9 +48,9 @@ class myplugin_t(idaapi.plugin_t):
             rangeSet = idaapi.rangeset_t()
             idaapi.get_func_ranges(rangeSet,function)
             rangeList = list(rangeSet)
-            for range in rangeList:
-                curAddr = range.start_ea
-                while curAddr < range.end_ea:
+            for rng in rangeList:
+                curAddr = rng.start_ea
+                while curAddr < rng.end_ea:
                     insn = idaapi.insn_t()
                     insnLen = idaapi.decode_insn(insn, curAddr)
                     if insn.get_canon_mnem() == 'call':
