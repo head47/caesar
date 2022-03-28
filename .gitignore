@@ -5,3 +5,4 @@
 *.nam
 *.til
 Ponce.cfg
+testcases/random_0/main.cpp
