@@ -2,6 +2,9 @@ import idaapi
 import networkx as nx
 import matplotlib.pyplot as plt
 
+SINGLETON_ADOPTION = True
+ADOPTION_THRESHOLD = 2
+
 def highly_connected(G,E):
     return len(E) > len(G.nodes) / 2
 
@@ -69,6 +72,27 @@ class myplugin_t(idaapi.plugin_t):
         print(funcG.nodes)
         print(funcG.edges)
         dividedG = HCS(funcG)
+        clusters = [list(c) for c in nx.connected_components(dividedG)]
+        print('clusters:',clusters)
+        # singleton adoption
+        if SINGLETON_ADOPTION:
+            for singleton in clusters:
+                if len(singleton) == 1:
+                    nearest = None
+                    minConn = ADOPTION_THRESHOLD-1
+                    for i in range(0,len(clusters)):
+                        connNum = 0
+                        for node2 in clusters[i]:
+                            if funcG.has_edge(singleton[0],node2):
+                                connNum += 1
+                        if (connNum > minConn):
+                            nearest = i
+                            minConn = connNum
+                    if nearest is not None:
+                        print('adopting',singleton[0],'to',clusters[nearest])
+                        dividedG.add_edge(singleton[0],clusters[nearest][0])
+                    else:
+                        print('could not adopt',singleton[0])
 
         subax1 = plt.subplot(121)
         nx.draw(funcG, with_labels=True)
