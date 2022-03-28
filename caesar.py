@@ -33,7 +33,14 @@ class myplugin_t(idaapi.plugin_t):
         #funcs = {
         #    'main': idaapi.get_func(idaapi.get_name_ea(idaapi.BADADDR,'main'))
         #}
-        funcs = ['main']
+        if idaapi.get_func(idaapi.get_name_ea(idaapi.BADADDR,'main')) is not None:
+            funcs = ['main']
+        elif idaapi.get_func(idaapi.get_name_ea(idaapi.BADADDR,'_main')) is not None:
+            funcs = ['_main']
+        else:
+            funcs = [idaapi.ask_ident(
+                '','Could not detect main function, please specify it manually'
+            )]
         connections = []
         i = 0
         while i < len(funcs):
