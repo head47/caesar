@@ -1,9 +1,14 @@
 import idaapi
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
 
 SINGLETON_ADOPTION = True
-ADOPTION_THRESHOLD = 2
+ADOPTION_THRESHOLD = 0.3
+SEED = 0
+
+random.seed(SEED)
+adopted = []
 
 def highly_connected(G,E):
     return len(E) > len(G.nodes) / 2
@@ -12,15 +17,51 @@ def HCS(G_):
     G = G_.copy()
     if len(G.nodes) == 1:
         return G
-    E = nx.algorithms.connectivity.cuts.minimum_edge_cut(G)
+    try:
+        E = nx.algorithms.connectivity.cuts.minimum_edge_cut(G)
+    except nx.exception.NetworkXError as err:
+        if err.args[0] == "Input graph is not connected":
+            E = ()
     if not highly_connected(G,E):
         G.remove_edges_from(E)
         print('removing',E)
         subgraphs = [G.subgraph(c).copy() for c in nx.connected_components(G)]
-        subgraphs[0] = HCS(subgraphs[0])
-        subgraphs[1] = HCS(subgraphs[1])
-        G = nx.compose(subgraphs[0],subgraphs[1])
+        for i in range(0,len(subgraphs)):
+            subgraphs[i] = HCS(subgraphs[i])
+        G = nx.compose_all(subgraphs)
     return G
+
+def adopt(funcG,dividedG,clusters):
+    contFlag = True
+    while contFlag:
+        contFlag = False
+        for singleton in clusters:
+            if len(singleton) == 1:
+                nearest = []
+                minConn = ADOPTION_THRESHOLD
+                for i in range(0,len(clusters)):
+                    connNum = 0
+                    for node2 in clusters[i]:
+                        if funcG.has_edge(singleton[0],node2):
+                            connNum += 1
+                    connNum /= len(clusters[i])
+                    if (connNum > minConn):
+                        nearest = [i]
+                        minConn = connNum
+                    elif (connNum == minConn):
+                        nearest.append(i)
+                if len(nearest) > 0:
+                    chosenCluster = random.choice(nearest)
+                    chosenNode = random.choice(clusters[chosenCluster])
+                    print('adopting',singleton[0],'to',clusters[chosenCluster])
+                    adopted.append(singleton[0])
+                    dividedG.add_edge(singleton[0],chosenNode)
+                    clusters = [list(c) for c in nx.connected_components(dividedG)]
+                    contFlag = True
+                    break
+                else:
+                    print('could not adopt',singleton[0])
+    return clusters
 
 class myplugin_t(idaapi.plugin_t):
     flags = idaapi.PLUGIN_UNL
@@ -33,6 +74,7 @@ class myplugin_t(idaapi.plugin_t):
         return idaapi.PLUGIN_OK
 
     def run(self, arg):
+        global adopted
         #funcs = {
         #    'main': idaapi.get_func(idaapi.get_name_ea(idaapi.BADADDR,'main'))
         #}
@@ -75,31 +117,18 @@ class myplugin_t(idaapi.plugin_t):
         clusters = [list(c) for c in nx.connected_components(dividedG)]
         # singleton adoption
         if SINGLETON_ADOPTION:
-            for singleton in clusters:
-                if len(singleton) == 1:
-                    nearest = None
-                    minConn = ADOPTION_THRESHOLD-1
-                    for i in range(0,len(clusters)):
-                        connNum = 0
-                        for node2 in clusters[i]:
-                            if funcG.has_edge(singleton[0],node2):
-                                connNum += 1
-                        if (connNum > minConn):
-                            nearest = i
-                            minConn = connNum
-                    if nearest is not None:
-                        print('adopting',singleton[0],'to',clusters[nearest])
-                        dividedG.add_edge(singleton[0],clusters[nearest][0])
-                    else:
-                        print('could not adopt',singleton[0])
-            clusters = [list(c) for c in nx.connected_components(dividedG)]
+            clusters = adopt(funcG,dividedG,clusters)
         print('clusters:',clusters)
         for i in range(0,len(clusters)):
             if len(clusters[i]) == 1:
                 continue
             for funcName in clusters[i]:
                 funcAddr = idaapi.get_name_ea(idaapi.BADADDR,funcName)
-                idaapi.set_name(funcAddr,f'L{i}_{funcName}')
+                if funcName not in adopted:
+                    idaapi.set_name(funcAddr,f'C{i}_{funcName}')
+                else:
+                    idaapi.set_name(funcAddr,f'C{i}AD_{funcName}')
+        adopted = []
 
         subax1 = plt.subplot(121)
         nx.draw(funcG, with_labels=True)
