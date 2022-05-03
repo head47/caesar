@@ -132,8 +132,10 @@ class myplugin_t(idaapi.plugin_t):
 
         subax1 = plt.subplot(121)
         nx.draw(funcG, with_labels=True)
+        nx.write_gexf(funcG, "g1.gexf")
         subax2 = plt.subplot(122)
         nx.draw(dividedG, with_labels=True)
+        nx.write_gexf(dividedG, "g2.gexf")
         plt.show()
 
     def term(self):
