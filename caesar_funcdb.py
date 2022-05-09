@@ -48,14 +48,14 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
             queue = [idaapi.ask_ident(
                 '','Could not detect main function, please specify it manually'
             )]
-        funcList = {}
+        funcDict = {}
+        # populate Function dict
         for funcName in queue:
-            funcList[funcName] = Function(funcName)
-            calledFuncs = funcList[funcName].called_funcs
+            funcDict[funcName] = Function(funcName)
+            calledFuncs = funcDict[funcName].called_funcs
             for calledFunc in calledFuncs:
                 if calledFunc not in queue:
                     queue.append(calledFunc)
-        print(funcList)
 
     def term(self):
         pass
