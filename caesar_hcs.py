@@ -67,7 +67,7 @@ class myplugin_t(idaapi.plugin_t):
     flags = idaapi.PLUGIN_UNL
     comment = ""
     help = ""
-    wanted_name = "Caesar"
+    wanted_name = "Caesar (HCS)"
     wanted_hotkey = ""
 
     def init(self):
