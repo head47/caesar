@@ -63,7 +63,7 @@ def adopt(funcG,dividedG,clusters):
                     print('could not adopt',singleton[0])
     return clusters
 
-class myplugin_t(idaapi.plugin_t):
+class caesar_hcs_plugin_t(idaapi.plugin_t):
     flags = idaapi.PLUGIN_UNL
     comment = ""
     help = ""
@@ -142,4 +142,4 @@ class myplugin_t(idaapi.plugin_t):
         pass
 
 def PLUGIN_ENTRY():
-    return myplugin_t()
+    return caesar_hcs_plugin_t()
