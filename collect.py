@@ -2,7 +2,8 @@
 # output to look like:
 # {'gnulib': {'func1': [{'called_func1','called_func2'}, {'called_func3','called_func2'}],'func2': {'called_func1','called_func3'},...}}
 import sys, os
-import pickle
+#import pickle
+import json
 from pathlib import Path
 from pycparser import c_ast, parse_file
 
@@ -10,8 +11,10 @@ FAKE_LIBC_LOCATION = '../pycparser/utils/fake_libc_include'
 libname, libpath = sys.argv[1], Path(sys.argv[2])
 
 try:
-    with open('funcs.pickle','rb') as f:
-        db = pickle.load(f)
+    #with open('funcs.pickle','rb') as f:
+        #db = pickle.load(f)
+    with open('funcs.json','r') as f:
+        db = json.load(f)
 except FileNotFoundError:
     db = {}
 
@@ -30,7 +33,8 @@ class FuncCallVisitor(c_ast.NodeVisitor):
             pass
         else:
             print(f'{self.parent_func} calls {node.name.name} at {node.coord}')
-            self.called_funcs.append(node.name.name)
+            if node.name.name not in self.called_funcs:
+                self.called_funcs.append(node.name.name)
         if node.args:
             self.visit(node.args)
 
@@ -40,7 +44,7 @@ class FuncDefVisitor(c_ast.NodeVisitor):
         print(f'{node.decl.name} at {node.decl.coord}')
         v = FuncCallVisitor(node.decl.name)
         v.visit(node.body)
-        called_funcs = set(v.called_funcs)
+        called_funcs = v.called_funcs
         if node.decl.name not in db[libname]:
             db[libname][node.decl.name] = []
         if called_funcs not in db[libname][node.decl.name]:
@@ -68,5 +72,7 @@ print(db)
 vis = FuncDefVisitor()
 parse_funcs(libpath, vis)
 print(db)
-with open('funcs.pickle','wb') as f:
-    pickle.dump(db,f)
+#with open('funcs.pickle','wb') as f:
+#    pickle.dump(db,f)
+with open('funcs.json','w') as f:
+    json.dump(db,f)
