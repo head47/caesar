@@ -184,7 +184,7 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
             else:
                 comment = "Possible functions:"
                 for i in range(len(guesses)):
-                    comment += '\n'+f'{i+1}. {guesses[0][1]} from {guesses[0][0]}'
+                    comment += '\n'+f'{i+1}. {guesses[i][1]} from {guesses[i][0]}'
                 comment+= '\n'+f'Probability: {probability:.2f}%'
                 if (probability > 50) and not (idaname.startswith('.')):
                     print(f'{idaname} identified (multiple possibilities, {probability:.2f}%)')
