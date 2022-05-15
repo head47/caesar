@@ -122,8 +122,11 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
     def run(self, arg):
         entryList = []
         # populate entry list
-        with open('funcs.json','r') as f:
-            db = json.load(f)
+        try:
+            with open('funcs.json','r') as f:
+                db = json.load(f)
+        except FileNotFoundError:
+            db = {}
         for lib in db:
             for func in db[lib]:
                 for cfl in db[lib][func]:
