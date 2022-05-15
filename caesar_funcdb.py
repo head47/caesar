@@ -162,9 +162,9 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
         for func_name in funcDict:
             if func_name.startswith('.'):
                 realname = func_name[1:]
-                funcDict[func_name].guesses = [('EXTERN',realname)]
+                funcDict[func_name].guesses = [('EXTERN/FLIRT',realname)]
                 funcDict[func_name].probability = 1
-                print(f'{func_name} identified as {realname} (EXTERN)')
+                print(f'{func_name} identified as {realname} (EXTERN/FLIRT)')
         # next passes: update all possible functions
         for passCount in range(MAX_PASSES):
             updated = False
