@@ -179,12 +179,12 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
                         updated = True
                         funcDict[func_name].guesses = [(entry.lib,entry.name)]
                         funcDict[func_name].probability = probability
-                        print(f'{func_name} identified as {entry.name} ({entry.lib})')
+                        print(f'{func_name} identified as {entry.name} ({entry.lib}, {funcDict[func_name].probability*100:.2f}%)')
                     elif probability == funcDict[func_name].probability:
                         if (entry.lib,entry.name) not in funcDict[func_name].guesses:
                             updated = True
                             funcDict[func_name].guesses.append((entry.lib,entry.name))
-                            print(f'{func_name} identified as {entry.name} ({entry.lib})')
+                            print(f'{func_name} identified as {entry.name} ({entry.lib}, {funcDict[func_name].probability*100:.2f}%)')
             if not updated:
                 break
         # add function comments
