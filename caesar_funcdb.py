@@ -53,18 +53,18 @@ class Function:
         if len(perms) == 0:
             return res
         initlen = len(perms[0])
-        for i in range(len(perms)):
+        for i in perms:
             valid = True
             # check for duplicates: 1 def for 1 func
-            for j in range(len(perms[i])):
-                for k in range(j+1,len(perms[i])):
-                    if (perms[i][j] == perms[i][k]) and (perms[i][j] is not None):
+            for j in range(len(i)):
+                for k in range(j+1,len(i)):
+                    if (i[j] == i[k]) and (i[j] is not None):
                         valid = False
                         break
                 if not valid:
                     break
             if valid:
-                res.append(perms[i])
+                res.append(i)
         return res
 
 class Entry:
