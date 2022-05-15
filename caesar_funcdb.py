@@ -1,6 +1,7 @@
 import idaapi
 import networkx as nx
 import json
+import itertools
 
 MAX_PASSES = 1000
 
@@ -48,49 +49,15 @@ class Function:
             for guess in guesses:
                 candidates.append(guess[1])
             candList.append(candidates)
-        perms = permutations(candList)
-        res = []
-        if len(perms) == 0:
-            return res
-        initlen = len(perms[0])
-        for i in perms:
-            valid = True
-            # check for duplicates: 1 def for 1 func
-            for j in range(len(i)):
-                for k in range(j+1,len(i)):
-                    if (i[j] == i[k]) and (i[j] is not None):
-                        valid = False
-                        break
-                if not valid:
-                    break
-            if valid:
-                res.append(i)
-        return res
+        if len(candList) == 0:
+            return []
+        return itertools.product(*candList)
 
 class Entry:
     def __init__(self,lib,name,cfl):
         self.lib = lib
         self.name = name
         self.called_funcs = cfl
-
-def permutations(list_):
-    '''Calculates possible permutations, given the list of candidates for each
-    position'''
-    if len(list_) <= 1:
-        return list_
-    perms = []
-    if len(list_) == 2:
-        for i in list_[0]:
-            for j in list_[1]:
-                perms.append([i,j])
-    else:
-        prevPerms = permutations(list_[:-1])
-        for i in list_[-1]:
-            for j in prevPerms:
-                j = j.copy()
-                j.append(i)
-                perms.append(j)
-    return perms
 
 def sorensen(a, b):
     '''Calculates Sorensen-Dice coefficient for two given lists or sets'''
