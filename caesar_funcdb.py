@@ -4,6 +4,7 @@ import json
 import itertools
 
 MAX_PASSES = 1000
+MAX_POSSIBILITIES = 100
 
 class Function:
     def __init__(self,idaname):
@@ -70,8 +71,12 @@ def similarity(actual, entry, funcDict):
     calledB = entry.called_funcs
     calledAList = actual.expandCalled(funcDict)
     coeffs = []
+    possCount = 0
     for i in calledAList:
         coeffs.append(sorensen(i,calledB))
+        possCount += 1
+        if possCount == MAX_POSSIBILITIES:
+            break
     if len(coeffs) == 0:
         return 0
     return sum(coeffs) / len(coeffs)
