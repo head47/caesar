@@ -187,6 +187,8 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
                             print(f'{func_name} identified as {entry.name} ({entry.lib}, {funcDict[func_name].probability*100:.2f}%)')
             if not updated:
                 break
+        if updated:
+            print("WARNING: MAX_PASSES reached, Caesar stopped")
         # add function comments
         for func_name in funcDict:
             idaname = funcDict[func_name].idaname
