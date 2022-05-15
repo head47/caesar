@@ -5,6 +5,7 @@ import itertools
 
 MAX_PASSES = 1000
 MAX_POSSIBILITIES = 100
+DEBUG = False
 
 class Function:
     def __init__(self,idaname):
@@ -139,7 +140,8 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
                 realname = func_name[1:]
                 funcDict[func_name].guesses = [('EXTERN/FLIRT',realname)]
                 funcDict[func_name].probability = 1
-                print(f'{func_name} identified as {realname} (EXTERN/FLIRT)')
+                if DEBUG:
+                    print(f'{func_name} identified as {realname} (EXTERN/FLIRT)')
         # next passes: update all possible functions
         for passCount in range(MAX_PASSES):
             updated = False
@@ -154,12 +156,14 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
                         updated = True
                         funcDict[func_name].guesses = [(entry.lib,entry.name)]
                         funcDict[func_name].probability = probability
-                        print(f'{func_name} identified as {entry.name} ({entry.lib}, {funcDict[func_name].probability*100:.2f}%)')
+                        if DEBUG:
+                            print(f'{func_name} identified as {entry.name} ({entry.lib}, {funcDict[func_name].probability*100:.2f}%)')
                     elif probability == funcDict[func_name].probability:
                         if (entry.lib,entry.name) not in funcDict[func_name].guesses:
                             updated = True
                             funcDict[func_name].guesses.append((entry.lib,entry.name))
-                            print(f'{func_name} identified as {entry.name} ({entry.lib}, {funcDict[func_name].probability*100:.2f}%)')
+                            if DEBUG:
+                                print(f'{func_name} identified as {entry.name} ({entry.lib}, {funcDict[func_name].probability*100:.2f}%)')
             if not updated:
                 break
         if updated:
@@ -175,11 +179,15 @@ class caesar_funcdb_plugin_t(idaapi.plugin_t):
                 comment = f"Detected function: {guesses[0][1]}"
                 comment+= '\n'+f"Detected library: {guesses[0][0]}"
                 comment+= '\n'+f"Probability: {probability:.2f}%"
+                if (probability > 50) and not (idaname.startswith('.')):
+                    print(f'{idaname} identified as {guesses[0][1]} ({guesses[0][0]}, {probability:.2f}%)')
             else:
                 comment = "Possible functions:"
                 for i in range(len(guesses)):
                     comment += '\n'+f'{i+1}. {guesses[0][1]} from {guesses[0][0]}'
                 comment+= '\n'+f'Probability: {probability:.2f}%'
+                if (probability > 50) and not (idaname.startswith('.')):
+                    print(f'{idaname} identified (multiple possibilities, {probability:.2f}%)')
             funct = idaapi.get_func(idaapi.get_name_ea(idaapi.BADADDR,idaname))
             idaapi.set_func_cmt(funct,comment,False)
 
