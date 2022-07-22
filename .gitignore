@@ -8,3 +8,5 @@ Ponce.cfg
 testcases/random_0/main.cpp
 testcases/random_1/*.cpp
 testcases/random_1/*.h
+testcases/coreutils/
+funcs.json
